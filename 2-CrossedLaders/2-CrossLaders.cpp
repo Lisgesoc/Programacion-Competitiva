@@ -1,7 +1,3 @@
-﻿// Nombre del alumno David Diaz
-// Usuario del Juez PC15
-
-
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -12,28 +8,10 @@ using namespace std;
 
 
 // función que resuelve el problema
-double resolver(const double x, const double y, const double c, double min, double max, const long double val) {
-
-    double w = (max + min) / 2;
-
-    if (max - min < 0.0001) {
-        return w;
-    }
-
-
-
-    long double aux = (1.0 / (sqrt(pow(x, 2) - pow(w, 2)))) + (1.0 / (sqrt(pow(y, 2) - pow(w, 2))));
-
-    if (aux==val) {
-        return w;
-    }
-    else if (aux > val){
-        return resolver(x, y, c, min, w, val);
-    }
-    else {
-        return resolver(x, y, c, w, max, val);
-    }
-
+double resolver(const double x, const double y, double w) {
+    double a = sqrt(y * y - w * w);
+    double b = sqrt(x * x - w * w);
+    return (b * a) / (b + a); //punto c
 
 }
 
@@ -42,20 +20,20 @@ double resolver(const double x, const double y, const double c, double min, doub
 bool resuelveCaso() {
     // leer los datos de la entrada
     double x, y, c;
-    cin >> x >> y >> c;
+    while (cin >> x >> y >> c) {
+        double l = 0.0, h = fmin(x, y), w, h1; //w ancho prueba, h1 altura con ese ancho donde interseccionan
 
-    if (!std::cin)
-        return false;
+        for (int i = 0; i < 100; i++) { 
+            w = (l + h) / 2.0;
+            h1 = resolver(x, y, w);
 
-    double min = 0.0, max = fmin(x, y);
-    long double val = 1 / c;
+            if (h1 > c) l = w;
+            else h = w;
+        }
 
-    double sol = resolver(x, y, c, min, max, val);
-
-    // escribir sol
-
-    cout << std::fixed << std::setprecision(3) << sol;
-
+        cout << std::fixed << std::setprecision(3) << w <<endl;
+    }
+    return 0;
 
     return true;
 
@@ -64,24 +42,24 @@ bool resuelveCaso() {
 int main() {
     // Para la entrada por fichero.
     // Comentar para acepta el reto
-    /*
+    
 #ifndef DOMJUDGE
     std::ifstream in("datos.txt");
     auto cinbuf = std::cin.rdbuf(in.rdbuf()); //save old buf and redirect std::cin to casos.txt
-#endif 
-    */
+#endif
+    
 
 
     while (resuelveCaso())
         ;
 
-    /*
+    
     // Para restablecer entrada. Comentar para acepta el reto
 #ifndef DOMJUDGE // para dejar todo como estaba al principio
     std::cin.rdbuf(cinbuf);
     system("PAUSE");
 #endif
-    */
+    
 
     return 0;
 }
