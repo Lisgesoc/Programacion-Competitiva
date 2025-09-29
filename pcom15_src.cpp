@@ -1,4 +1,7 @@
-﻿
+﻿//TODO Hay q hacer equis
+//! y ai que es lo que palas?
+// este es normal 
+
 
 #include <iostream>
 #include <iomanip>
@@ -13,53 +16,54 @@ int cont_caso = 0;
 typedef struct oferta{
     int cant;
     double precio;
+
 };
 
-
-oferta calculaOf(oferta of, int k) {
-    oferta sol;
-    if (k % of.cant == 0) {
-        sol.cant = k;
-        sol.precio = of.precio * (k / of.cant);
-        return sol;
-    }
-    else {
-        sol.cant = k;
-        sol.precio = of.precio * ((k / of.cant)+1);
-        return sol;
-    }
-
+double densidad(oferta of) {
+    double d;
+    d = of.precio / of.cant;
+    return d;
 }
 
+
+oferta sumaOf(oferta of1, oferta of2) {
+    oferta ofSol;
+    ofSol.precio = of1.precio + of2.precio;
+    ofSol.cant = of1.cant + of2.cant;
+    return ofSol;
+}
 
 // función que resuelve el problema
 oferta resolver(vector<oferta>ofertas, int k) {
     oferta of;
     of.cant = 0; of.precio = 0;
-    vector<oferta>matrix(ofertas.size(),of);
+    vector<oferta>matrix(k+1,of);
+    for (int i = 1; i <= k; i++) {
+        matrix[i].precio = i * ofertas[0].precio;
+        matrix[i].cant = i;
+    }
 
-    matrix[0].precio = ofertas[0].precio * k;
-    matrix[0].cant = k;
+    for (int j = 1; j < ofertas.size(); j++) {
+        for (int i = 1; i <= k; i++) {
+            of = ofertas[j];
+            if (i >= of.cant) {
+                of = sumaOf(of, matrix[i - of.cant]);
 
-    for (int i = 1; i < ofertas.size(); i++) {
-        of = calculaOf(ofertas[i], k);
-        if (of.precio < matrix[i - 1].precio) {
-            matrix[i] = of;
-        }
-        else if (of.precio > matrix[i - 1].precio) {
-            matrix[i] = matrix[i - 1];
-        }
-        else {
-            if (matrix[i - 1].cant > of.cant) {
-                matrix[i] = matrix[i - 1];
             }
-            else {
+            
+            if (of.precio < matrix[i].precio) {
                 matrix[i] = of;
             }
+            else if (of.precio == matrix[i].precio) {
+                if (densidad(of) == min(densidad(of), densidad(matrix[i]))) {
+                    matrix[i] = of;
+                }
+            }
+            
         }
     }
 
-    return matrix[ofertas.size() - 1];
+    return matrix[k];
 }
 
 
@@ -111,7 +115,7 @@ bool resuelveCaso() {
     for(int i=0;i<cont;i++){
         oferta sol = resolver(ofertas, num[i]);
         // escribir sol
-        cout << "Buy " << sol.cant << " for $";
+        cout << "Buy " << num[i] << " for $";
         cout << std::fixed << std::setprecision(2) << sol.precio << endl;
     }
 
